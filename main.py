@@ -57,13 +57,15 @@ class TicketView(discord.ui.View):
         )
 
         await channel.send(
-            f"Witaj {interaction.user.mention}\n\n"
-            "Wypełnij podanie:\n"
-            "- Wiek\n"
-            "- Imię\n"
-            "- Dlaczego chcesz dołączyć\n"
-            "- Doświadczenie\n",
-            view=CloseTicket()
+    f"Witaj {interaction.user.mention}\n\n"
+    "Wypełnij podanie do LSC:\n\n"
+    "- Wiek\n"
+    "- Imię\n"
+    "- Dlaczego chcesz dołączyć do LSC\n"
+    "- Czy masz doświadczenie w LSC lub pracy na LSC? Jeśli tak, gdzie i na jakim poziomie\n"
+    "- Ile czasu dziennie możesz poświęcić\n"
+    "- Jak radzisz sobie z pracą w zespole\n",
+    view=CloseTicket()
         )
 
         await interaction.response.send_message(
