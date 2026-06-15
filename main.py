@@ -1,10 +1,10 @@
 import os
+import asyncio
 import discord
 from discord.ext import commands
 from discord import app_commands
 
 TOKEN = os.getenv("TOKEN")
-
 RESULTS_CHANNEL_ID = 1512472772344021113
 
 intents = discord.Intents.default()
@@ -61,7 +61,7 @@ class TicketView(discord.ui.View):
             "- Wiek\n"
             "- Imię\n"
             "- Dlaczego chcesz dołączyć do LSC\n"
-            "- Czy masz doświadczenie w LSC lub pracy na LSC? Jeśli tak, gdzie i na jakim poziomie\n"
+            "- Czy masz doświadczenie?\n"
             "- Ile czasu dziennie możesz poświęcić\n"
             "- Jak radzisz sobie z pracą w zespole\n",
             view=CloseTicket()
@@ -113,16 +113,21 @@ async def accept(interaction: discord.Interaction):
         await member.add_roles(role2)
 
     embed = discord.Embed(
-        title="Podanie zaakceptowane",
-        description=f"{member.mention} Twoje podanie zostało zaakceptowane.",
-        color=discord.Color.gold()
+        title="Zaakceptowane podanie!",
+        description=(
+            f"{member.mention} Twoje podanie do LSC zostało rozpatrzone pozytywnie!\n\n"
+            f"Sprawdził: {interaction.user.mention}"
+        ),
+        color=discord.Color.green()
     )
 
     await interaction.channel.send(embed=embed)
 
     results_channel = interaction.guild.get_channel(RESULTS_CHANNEL_ID)
     if results_channel:
-        await results_channel.send(f"Podanie zaakceptowane: {member.mention}")
+        await results_channel.send(
+            f"✔ Podanie zaakceptowane: {member.mention} | Sprawdził: {interaction.user.name}"
+        )
 
     try:
         await member.send(
@@ -152,15 +157,27 @@ async def decline(interaction: discord.Interaction, powod: str):
     if member:
         try:
             await member.send(
-                f"Twoje podanie zostało odrzucone.\nPowód: {powod}"
+                f"Twoje podanie na LSC zostało odrzucone.\n\nPowód: {powod}"
             )
         except:
             pass
 
+    embed = discord.Embed(
+        title="Podanie odrzucone!",
+        description=(
+            f"{member.mention if member else 'Unknown'} Twoje podanie na LSC zostało odrzucone!\n\n"
+            f"Powód: {powod}\n\n"
+            f"Sprawdził: {interaction.user.mention}"
+        ),
+        color=discord.Color.red()
+    )
+
+    await interaction.channel.send(embed=embed)
+
     results_channel = interaction.guild.get_channel(RESULTS_CHANNEL_ID)
     if results_channel:
         await results_channel.send(
-            f"Podanie odrzucone: {member.mention if member else 'unknown'}\nPowód: {powod}"
+            f"❌ Podanie odrzucone: {member.mention if member else 'unknown'} | Powód: {powod} | Sprawdził: {interaction.user.name}"
         )
 
     await interaction.response.send_message(
@@ -168,10 +185,7 @@ async def decline(interaction: discord.Interaction, powod: str):
         ephemeral=True
     )
 
-    await discord.utils.sleep_until(
-        discord.utils.utcnow() + discord.timedelta(seconds=5)
-    )
-
+    await asyncio.sleep(5)
     await interaction.channel.delete()
 
 
