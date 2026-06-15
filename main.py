@@ -133,7 +133,6 @@ async def accept(interaction: discord.Interaction):
         await member.send(
             "Twoje podanie zostało zaakceptowane.\n\n"
             "Gratulacje — zostałeś przyjęty do LSC.\n\n"
-            "Skontaktuj się z administracją."
         )
     except:
         pass
