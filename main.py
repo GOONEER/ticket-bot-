@@ -80,10 +80,10 @@ class TicketView(discord.ui.View):
 @commands.has_permissions(administrator=True)
 async def panel(ctx):
     embed = discord.Embed(
-        title="Podania",
-        description="Kliknij przycisk aby stworzyć podanie.",
-        color=discord.Color.green()
-    )
+    title="Podania",
+    description="Kliknij przycisk aby stworzyć podanie.",
+    color=discord.Color.gold()
+      )
 
     await ctx.send(embed=embed, view=TicketView())
 
