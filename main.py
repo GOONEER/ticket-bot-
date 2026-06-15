@@ -3,10 +3,9 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from dotenv import load_dotenv
-load_dotenv()
-
 TOKEN = os.getenv("TOKEN")
+
+RESULTS_CHANNEL_ID = 1512472772344021113
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -57,15 +56,15 @@ class TicketView(discord.ui.View):
         )
 
         await channel.send(
-    f"Witaj {interaction.user.mention}\n\n"
-    "Wypełnij podanie do LSC:\n\n"
-    "- Wiek\n"
-    "- Imię\n"
-    "- Dlaczego chcesz dołączyć do LSC\n"
-    "- Czy masz doświadczenie w LSC lub pracy na LSC? Jeśli tak, gdzie i na jakim poziomie\n"
-    "- Ile czasu dziennie możesz poświęcić\n"
-    "- Jak radzisz sobie z pracą w zespole\n",
-    view=CloseTicket()
+            f"Witaj {interaction.user.mention}\n\n"
+            "Wypełnij podanie do LSC:\n\n"
+            "- Wiek\n"
+            "- Imię\n"
+            "- Dlaczego chcesz dołączyć do LSC\n"
+            "- Czy masz doświadczenie w LSC lub pracy na LSC? Jeśli tak, gdzie i na jakim poziomie\n"
+            "- Ile czasu dziennie możesz poświęcić\n"
+            "- Jak radzisz sobie z pracą w zespole\n",
+            view=CloseTicket()
         )
 
         await interaction.response.send_message(
@@ -79,11 +78,12 @@ class TicketView(discord.ui.View):
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def panel(ctx):
+
     embed = discord.Embed(
-    title="Podania",
-    description="Kliknij przycisk aby stworzyć podanie.",
-    color=discord.Color.gold()
-      )
+        title="Podania",
+        description="Kliknij przycisk aby stworzyć podanie.",
+        color=discord.Color.gold()
+    )
 
     await ctx.send(embed=embed, view=TicketView())
 
@@ -112,9 +112,17 @@ async def accept(interaction: discord.Interaction):
     if role2:
         await member.add_roles(role2)
 
-    await interaction.channel.send(
-        f"{member.mention} podanie zostało zaakceptowane."
+    embed = discord.Embed(
+        title="Podanie zaakceptowane",
+        description=f"{member.mention} Twoje podanie zostało zaakceptowane.",
+        color=discord.Color.gold()
     )
+
+    await interaction.channel.send(embed=embed)
+
+    results_channel = interaction.guild.get_channel(RESULTS_CHANNEL_ID)
+    if results_channel:
+        await results_channel.send(f"Podanie zaakceptowane: {member.mention}")
 
     try:
         await member.send(
@@ -148,6 +156,12 @@ async def decline(interaction: discord.Interaction, powod: str):
             )
         except:
             pass
+
+    results_channel = interaction.guild.get_channel(RESULTS_CHANNEL_ID)
+    if results_channel:
+        await results_channel.send(
+            f"Podanie odrzucone: {member.mention if member else 'unknown'}\nPowód: {powod}"
+        )
 
     await interaction.response.send_message(
         "Odrzucono podanie. Kanał zostanie usunięty za 5 sekund.",
